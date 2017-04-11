@@ -59,14 +59,25 @@ class HCI_Event:
         self.param     = []
         
         self.HCIEvent_Init()
-        self.HCIEvent_print()
-    
+        self.HEX_Show()
+        
+        self.HCI_print()
+
+
     def HCIEvent_Init(self):
-        pass
+        self.EventCode = self.str[0]
+        self.Length = self.str[1]
+        self.param[0:] = self.str[2:]
         
-        
+    def HEX_Show(self):
+        for num in self.str:
+            print '0x%02x'%(num) ,
+
     def HCI_print(self):
-        print "HCIEvent "
+        print '\n#- F -| %d'%(self.EventCode),
+        print '#- Len: %d'%(self.Length),
+        print '#- param: ' , self.param
+        print '\n\n'
 
 def Analyze(filename):
     file_ops = open(filename, 'ab+')
@@ -84,8 +95,8 @@ def Analyze(filename):
             temp_num = file_content[curent_num:curent_num+length+4]
             cmd = HCI_Command(temp_num)
             print "No: %d "%(cmd_no) ,
+
             cmd.HCI_print()
-            
             curent_num += length + 4
             cmd_no += 1
             
@@ -99,8 +110,12 @@ def Analyze(filename):
             
         elif (file_content[curent_num] == 0x04):
             length = file_content[curent_num + 2] 
-            curent_num += length
-            temp_num = file_content[curent_num:curent_num+length+4]
+           
+            temp_num = file_content[curent_num:curent_num+length + 3]
+            curent_num += length + 3
+            print "No: %d ### "%(cmd_no) , 
+            cmd_no += 1
+            
             HCI_Event(temp_num)
             
         else:
@@ -111,6 +126,9 @@ def Analyze(filename):
 if __name__ == "__main__":
     filename = sys.argv[1]
     print filename
-    Analyze(filename)
+    if(Analyze(filename) == False ):
+        print "\nAnalyze Failed ..... \n"
+    else:
+        print "\nAnalyze Success ...... \n"
 
     
