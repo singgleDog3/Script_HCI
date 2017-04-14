@@ -4,7 +4,6 @@ import struct
 import os
 import string
 import array
-from HCI_cmdevent import *
 
 
 # HCI command format
@@ -76,7 +75,7 @@ class HCI_Event:
     def HCI_print(self):
         print '\n#- F -| %d'%(self.EventCode),
         print '#- Len: %d'%(self.Length),
-        print '#- param: ' , self.param
+        print '#- param: ' , self.param,
         print '\n\n'
 
 def Analyze(filename):
@@ -101,9 +100,19 @@ def Analyze(filename):
             cmd_no += 1
             
         elif (file_content[curent_num] == 0x02):
-            length = file_content[curent_num + 4] <<8 +  file_content[curent_num + 5]
-            curent_num += length
+            # length = file_content[curent_num + 3]  +  file_content[curent_num + 4] << 8
+
+            length = file_content[curent_num + 3]
+            print "H:%d L:%d"%(file_content[curent_num + 3], file_content[curent_num + 4] << 8) 
+            print "curent: %d  length: %d"%(curent_num, length)
+
+            temp_num = file_content[curent_num:curent_num + length + 4]
+            for num in temp_num:
+                print "0x%02x"%(num),
             
+            curent_num += length + 4 
+            # print 'curent: %d'%(curent_num)
+
         elif (file_content[curent_num] == 0x03):
             length = file_content[curent_num + 4];
             curent_num += length
@@ -121,7 +130,7 @@ def Analyze(filename):
         else:
             return False
         
-    return False
+    return True 
             
 if __name__ == "__main__":
     filename = sys.argv[1]
